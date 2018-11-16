@@ -17,7 +17,9 @@ module.exports = {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
-
+  env:{
+    server:'dev'
+  },
   /*
   ** Customize the progress-bar color
   */
@@ -27,12 +29,18 @@ module.exports = {
   ** Global CSS
   */
   css: [
+    '~assets/font-awesome/css/font-awesome.min.css'
   ],
 
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
+    {src: '~plugins/iview', ssr: true},
+    '~plugins/i18n',
+    '~plugins/moment',
+    '~plugins/validation'
+    /*{src: '~plugins/axios', ssr: true}*/
   ],
 
   /*
@@ -40,7 +48,8 @@ module.exports = {
   */
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy'
   ],
   /*
   ** Axios module configuration
@@ -48,6 +57,15 @@ module.exports = {
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
   },
+  proxy: [
+    [
+      '/proxy',
+      {
+        target: 'https://cnodejs.org/api/v1', // api主机
+        pathRewrite: { '^/proxy' : '/' }
+      }
+    ]
+  ],
 
   /*
   ** Build configuration
@@ -57,7 +75,10 @@ module.exports = {
     ** You can extend webpack config here
     */
     extend(config, ctx) {
-      
+
     }
+  },
+  router: {
+    middleware: ['i18n','browser','stats']
   }
 }
