@@ -5,8 +5,7 @@ const axios = require('../plugins/axios')
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-    return axios.get('/topics').then(data=>{
-        //console.log(data.data.data);
+    axios.get('/topics').then(data=>{
         res.json(data.data.data)
     });
 })

@@ -19,6 +19,9 @@
           class="button--grey">GitHub</a>
       </div>
       <div>
+        <nuxt-link :to="{path: '/dir1/home',name:'dir1-home'}">切换到另外一个布局</nuxt-link>
+      </div>
+      <div>
         <div>
           <Button @click="changeLocale($event,'en')"><i class="fa fa-home"></i>英文</Button>
           <Button @click="changeLocale($event,'zh')"><i class="fa fa-home"></i>中文</Button>
@@ -61,6 +64,7 @@
   import Cookies from 'js-cookie'
 
   export default {
+    layout: 'fullscreen',
     async asyncData(ctx) {
       let [userList, topicList] = await Promise.all([
         ctx.$axios.get('/api/users'),
@@ -96,7 +100,7 @@
     methods: {
       init() {
         this.$axios.get('/proxy/topics').then(res => {
-          console.log(res.data.data);
+          //console.log(res.data.data);
           //this.list = res.data.data;
         });
       },
