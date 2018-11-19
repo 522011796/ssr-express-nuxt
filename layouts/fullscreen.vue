@@ -12,32 +12,10 @@
       }
     },
     created() {
-      this.hh();
+      //this.hh();
     },
     methods: {
-      hh() {
-        if (process.browser) {
-          /*this.styleMenuObjectLeft.height = window.innerHeight-60 + 'px';
-          this.styleMenuObjectRight.minHeight = window.innerHeight-60 + 'px';
-          this.$nextTick(function () {
-            this.loadingShow = true;
-          });*/
-        }
-      }
-    },
-    mounted() {
-      // 注：window.onresize只能在项目内触发1次
-      var _self = this;
-      if (process.browser) {
-        window.onresize = function () {
-          _self.hh();
-        }
-      }
-    },
-    watch: {
-      '$route': function (to, from) {//监听路由变化,为了浏览器点击后退和前进也能切换菜单选中
-        localStorage.setItem('activeMenu','dir1');
-      }
+
     }
   }
 </script>

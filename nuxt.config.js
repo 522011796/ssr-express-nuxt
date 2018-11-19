@@ -74,11 +74,12 @@ module.exports = {
     /*
     ** You can extend webpack config here
     */
+    vendor: ['external_library','axios','js-cookie','i18n','moment'],
     extend(config, ctx) {
 
     }
   },
   router: {
-    middleware: ['i18n','browser','stats']
+    middleware: ['i18n','browser','stats','auth']
   }
 }
