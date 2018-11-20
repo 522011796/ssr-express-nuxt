@@ -18,7 +18,10 @@
         class="button--grey">GitHub</a>
     </div>
     <div>
-      <nuxt-link :to="{path: '/dir1/home',name:'dir1-home'}">切换到另外一个布局</nuxt-link>
+      <!--<nuxt-link :to="{path: '/dir1/home',name:'dir1-home'}">切换到另外一个布局</nuxt-link>-->
+      <div @click="jumpOther" style="cursor: pointer;color:#2db7f5;">
+        切换到另外一个布局
+      </div>
     </div>
     <div>
       <div>
@@ -112,6 +115,9 @@
           if (valid) {
           }
         });
+      },
+      jumpOther(){
+        window.location = '/dir1/home';
       }
     }
   }
