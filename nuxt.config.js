@@ -23,7 +23,8 @@ module.exports = {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#fff' },
+  loading: { color: '#2db7f5' },
+  //loading: '~/components/loading.vue',
 
   /*
   ** Global CSS
@@ -39,7 +40,8 @@ module.exports = {
     {src: '~plugins/iview', ssr: true},
     '~plugins/i18n',
     '~plugins/moment',
-    '~plugins/validation'
+    '~plugins/validation',
+    '~plugins/utils'
     /*{src: '~plugins/axios', ssr: true}*/
   ],
 
@@ -74,7 +76,7 @@ module.exports = {
     /*
     ** You can extend webpack config here
     */
-    vendor: ['external_library','axios','js-cookie','i18n','moment'],
+    vendor: ['external_library','axios','js-cookie','i18n','moment','utils'],
     extend(config, ctx) {
 
     }
