@@ -77,7 +77,7 @@ module.exports = {
     /*
     ** You can extend webpack config here
     */
-    vendor: ['external_library','axios','js-cookie','i18n','moment','utils'],
+    vendor: ['external_library','axios','js-cookie','i18n','moment','utils','babel-polyfill','event-source-polyfill'],
     extend(config, ctx) {
 
     }

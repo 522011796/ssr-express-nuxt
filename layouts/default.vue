@@ -19,7 +19,7 @@
     <div v-if="loadingShow">
       <div class="div-left" :style="styleMenuObjectLeft">
         <div :class="menu == 'dir1' ? 'show' : 'hidden'">
-          <Menu ref="side_menu" :active-name="menuSilder ? menuSilder : activeSilder" @on-select="selMenu">
+          <Menu ref="side_menu" :active-name="menuSilder ? menuSilder : activeSilder" @on-select="selMenu" style="width: 200px">
             <div>
               <MenuItem name="dir1-home" :to="{path:'/dir1/home',name:'dir1-home'}">
                 <Icon type="md-document" />
