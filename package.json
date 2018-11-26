@@ -14,11 +14,16 @@
     "@nuxtjs/axios": "^5.0.0",
     "babel-polyfill": "^6.26.0",
     "cross-env": "^5.2.0",
+    "dat.gui": "^0.7.0-0",
     "express": "^4.16.3",
     "iview": "^3.1.5",
     "js-cookie": "^2.2.0",
     "moment": "^2.22.2",
     "nuxt": "^2.0.0",
+    "stats-js": "^1.0.0-alpha1",
+    "three": "^0.98.0",
+    "three-js-csg": "^72.0.0",
+    "three-orbit-controls": "^82.1.0",
     "vue-i18n": "^8.3.1"
   },
   "devDependencies": {
