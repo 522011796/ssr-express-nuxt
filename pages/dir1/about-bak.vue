@@ -39,8 +39,7 @@
         gui:null,
         dummy:null,
         door_state:true,
-        objects:[],
-        groupPlane:null
+        objects:[]
       }
     },
     created() {
@@ -53,23 +52,24 @@
         this.initCamera();
         this.initStats();
         this.initLight();
-        this.initAxes();
+        //this.initAxes();
         //this.initPlane();
-        this.initCustomPlane();
+        //this.initCustomPlane();
         this.initControl();
         //绘制正方体
         //this.addCube();
         this.addWall();
         this.addDoor();
-        this.addWallAfter();
         this.addWallLeft();
+        this.addWallAfter();
         this.addWallRight();
         this.renderer.render(this.scene, this.camera);
 
         /*this.renderer.render(this.scene, this.camera)
         this.scene.add(this.mesh);*/
+
         //监听键盘按键
-        document.addEventListener("click", this.onkeyDown, false);
+        window.addEventListener("click", this.onkeyDown, false);
       },
       initContainer(){
         let container = document.getElementById('container');
@@ -88,7 +88,7 @@
       },
       initControl(){
         this.controls = new OrbitControls(this.camera);// 初始化控制器
-        this.controls.target.set(0,0,0);// 设置控制器的焦点，使控制器围绕这个焦点进行旋转
+        this.controls.target.set(45, 15, 30);// 设置控制器的焦点，使控制器围绕这个焦点进行旋转
         this.controls.minDistance = 80;// 设置移动的最短距离（默认为零）
         this.controls.maxDistance = 400;// 设置移动的最长距离（默认为无穷）
         this.controls.maxPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
@@ -113,6 +113,9 @@
       initAxes(){
         //生成一个坐标轴，辅助线，坐标轴的参数
         this.axes=new THREE.AxisHelper(20);
+        this.axes.position.x = 50;
+        this.axes.position.y = 4;
+        this.axes.position.z = 30;
         this.scene.add(this.axes)
       },
       initPlane(){
@@ -132,31 +135,21 @@
       },
       initCustomPlane(){
         //plane1.rotation.x=-0.5*Math.PI;//将平面沿着x轴进行旋转
-        var mesh = null;
-        this.groupPlane = new THREE.Group();
         for(var i=0;i<20;i++){
           for(var j=0;j<10;j++){
             let cubeGeometry=new THREE.CubeGeometry(5,2,5);
             let planeMaterial=new THREE.MeshLambertMaterial(i%2==0 ? {color: 0x00ffff} : {color: 0xffffff});
-            mesh=new THREE.Mesh(cubeGeometry,planeMaterial);
+            var mesh=new THREE.Mesh(cubeGeometry,planeMaterial);
             mesh.position.set(i*5,3,j*5);
             mesh.castShadow=true;//需要阴影，方块进行投射阴影
-            //this.scene.add(mesh);
-            this.groupPlane.add(mesh);
+            this.scene.add(mesh);
           }
         }
-        //this.camera.position.x =  45
-        //group.position.x = 45;
-        const box = new THREE.Box3();
-        let center = box.expandByObject(this.groupPlane).max;
-        let boxCenter = box.getCenter(center);
-        //通过传入的object3D对象来返回当前模型的最小大小，值可以使一个mesh也可以使group
-        this.groupPlane.position.set(-boxCenter.x,-boxCenter.y,-boxCenter.z);
-        this.scene.add(this.groupPlane);
+        this.camera.position.x =  45
       },
       initLight(){
         let spotLight=new THREE.SpotLight(0xffffff);
-        spotLight.position.set(0,180,100);
+        spotLight.position.set(50,100,140);
         spotLight.castShadow=true;
         this.scene.add(spotLight);
       },
@@ -173,72 +166,47 @@
         let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd});
         this.cube=new THREE.Mesh(cubeGeometry,planeMaterial);
         //plane1.rotation.x=-0.5*Math.PI;//将平面沿着x轴进行旋转
-        this.cube.position.x=0;
-        this.cube.position.y=0;
-        this.cube.position.z=0;
+        this.cube.position.x=50;
+        this.cube.position.y=10;
+        this.cube.position.z=25;
         this.cube.castShadow=true;//需要阴影，方块进行投射阴影
-        this.cube.name = 'cube';
         this.scene.add(this.cube);
       },
       addWall(){//模拟一面墙
-        let cubeGeometry=new THREE.CubeGeometry(-this.groupPlane.position.x*2,10,1);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false});
+        let cubeGeometry=new THREE.CubeGeometry(80,10,1);
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
-        this.wall.position.x=0;
-        this.wall.position.y=-this.groupPlane.position.y+3;
-        this.wall.position.z=-this.groupPlane.position.z;
+        this.wall.position.x=50;
+        this.wall.position.y=9;
+        this.wall.position.z=45;
         this.wall.name = 'mainWall';
         //this.scene.add(this.wall);
       },
       addWallAfter(){//模拟一面墙
-        let cubeGeometry=new THREE.CubeGeometry(-this.groupPlane.position.x*2,10,1);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false,transparent : true,opacity: 0.9});
+        let cubeGeometry=new THREE.CubeGeometry(80,10,1);
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
-        this.wall.position.x=0;
-        this.wall.position.y=-this.groupPlane.position.y+3;
-        this.wall.position.z=this.groupPlane.position.z;
-        //this.scene.add(this.wall);
-
-        let cubeGeometry1 = new THREE.BoxGeometry(-this.groupPlane.position.x*2-30,6,1);
-        let planeMaterial1 = new THREE.MeshBasicMaterial({
-          flatShading: true,
-          color : 0x58ACFA,
-          opacity: 0.5,
-          transparent : true
-        });
-        let cube = new THREE.Mesh(cubeGeometry1, planeMaterial1);
-        cube.position.x = 0;
-        cube.position.y = -this.groupPlane.position.y+3;
-        cube.position.z = this.groupPlane.position.z;
-
-        var sphere1BSP = new ThreeBSP(this.wall);
-        var cube2BSP = new ThreeBSP(cube);
-
-        this.subtractMesh(cube2BSP,sphere1BSP);
-
-        this.scene.add(cube);
-
-        /*var wallGroup = new THREE.Group();
-        wallGroup.add(this.wall);
-        wallGroup.add(cube);
-        this.scene.add(wallGroup);*/
+        this.wall.position.x=50;
+        this.wall.position.y=9;
+        this.wall.position.z=0;
+        this.scene.add(this.wall);
       },
       addWallLeft(){//模拟一面墙
         let cubeGeometry=new THREE.CubeGeometry(1,10,45);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false});
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
-        this.wall.position.x=-this.groupPlane.position.x;
-        this.wall.position.y=-this.groupPlane.position.y+3;
-        this.wall.position.z=0;
+        this.wall.position.x=9.5;
+        this.wall.position.y=9;
+        this.wall.position.z=22.5;
         this.scene.add(this.wall);
       },
       addWallRight(){//模拟一面墙
         let cubeGeometry=new THREE.CubeGeometry(1,10,45);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false});
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
-        this.wall.position.x=this.groupPlane.position.x;
-        this.wall.position.y=-this.groupPlane.position.y+3;
-        this.wall.position.z=0;
+        this.wall.position.x=90.5;
+        this.wall.position.y=9;
+        this.wall.position.z=22.5;
         this.scene.add(this.wall);
       },
       addDoor(){
@@ -249,9 +217,9 @@
         //var door_cube = new THREE.Mesh( door,doorMaterial);
         var door_cube = new THREE.Mesh( door);
         // 设置门位置
-        door_cube.position.x = 0;
-        door_cube.position.y = -this.groupPlane.position.y+3;
-        door_cube.position.z = -this.groupPlane.position.z;
+        door_cube.position.x = 50;
+        door_cube.position.y = 8;
+        door_cube.position.z = 45;
         door_cube.name = 'doorWall';
         //door_cube.rotation.y += 0.5*Math.PI;
 
@@ -271,13 +239,11 @@
           doormaterial.opacity = 1.0;
           doormaterial.transparent = true;
           var door1 = new THREE.Mesh(doorgeometry, doormaterial);
-          door1.position.set(0, -_self.groupPlane.position.y+3, -_self.groupPlane.position.z);
-          door1.visible = true;
-          door1.name = 'doorMain1';
+          door1.position.set(50, 8, 45);
+          door1.name = 'doorMain';
           var door2 = door1.clone();
-          door2.position.set(0, _self.groupPlane.position.y+3, -_self.groupPlane.position.z);
+          door2.position.set(-50, 8, 45);
           door2.visible = false;
-          door1.name = 'doorMain2';
           _self.dummy.position.set(0, 0, 0);
 
           _self.dummy.name = 'doorMain';
@@ -286,6 +252,17 @@
           _self.objects.push(door1);
           _self.scene.add(_self.dummy);
         });
+      },
+      subtractMesh(meshDoor,meshWall){
+        //平行x轴横墙面4减去与meshHDoor门重叠部分
+        var subtract_bsp = meshWall.subtract( meshDoor );
+        var result = subtract_bsp.toMesh(new THREE.MeshBasicMaterial({
+          flatShading: true,
+          color:'#bbbbbb'
+        }));
+        //result.geometry.computeFaceNormals();
+        //result.geometry.computeVertexNormals();
+        this.scene.add( result );
       },
       animate: function () {
         this.cube.rotation.x += 0
@@ -297,68 +274,51 @@
         requestAnimationFrame(this.animate)
       },
       onkeyDown(event) {
-        let object = [];
+        var selectedObject = null;
         event.preventDefault();
         var raycaster = new THREE.Raycaster();
-        var mouse = new THREE.Vector2();
+        var mouse = new THREE.Vector3();
         //通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
 
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
         // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
         raycaster.setFromCamera( mouse, this.camera );
 
         // 获取raycaster直线和所有模型相交的数组集合
-        for(var item in Object.assign({},this.scene.children)){
-          //console.log(this.scene.children[item]);
-          object.push(this.scene.children[item]);
-        }
+        var intersects = raycaster.intersectObjects( this.scene.children );
 
         //将所有的相交的模型的颜色设置为红色，如果只需要将第一个触发事件，那就数组的第一个模型改变颜色即可
-        for ( var i = 0; i < object.length; i++ ) {
-          if(object[i].name == 'cube'){
-            console.log(this.scene.getObjectByName('cube1'));
-          }
+        for ( var i = 0; i < intersects.length; i++ ) {
 
-          if(object[i].children.length > 0){
-            /*for(var j=0;j<object[i].children.length;j++){
-              if(object[i].children[j].name == 'doorMain1'){
-                /!*if (this.door_state) {
-                  this.dummy.rotation.y += 0.5 * Math.PI;
-                  this.door_state = false;
-                } else {
-                  this.dummy.rotation.y -= 0.5 * Math.PI;
-                  this.door_state = true;
-                }*!/
-                if(object[i].children[j].visible == false){
-                  this.scene.getObjectByName('doorMain2').rotation.y = 0.5 * Math.PI;
-                  this.scene.getObjectByName('doorMain1').visible = false;
-                  this.scene.getObjectByName('doorMain2').visible = true;
-                }
-                this.addTouchListener();
-              }
-              if(object[i].children[j].name == 'doorMain2'){
-                if(object[i].children[j].visible == true){
-                  this.scene.getObjectByName('doorMain2').rotation.y -= 0.5 * Math.PI;
-                  this.scene.getObjectByName('doorMain1').visible = true;
-                  this.scene.getObjectByName('doorMain2').visible = false;
-                }
-                this.addTouchListener();
-              }
-            }*/
-          }
+          console.log(intersects[ i ].object);
+
         }
-      },
-      subtractMesh(meshDoor,meshWall){
-        //平行x轴横墙面4减去与meshHDoor门重叠部分
-        var subtract_bsp = meshWall.subtract( meshDoor );
-        var result = subtract_bsp.toMesh(new THREE.MeshBasicMaterial({
-          flatShading: true,
-          color:0xaaaaaa
-        }));
-        //result.geometry.computeFaceNormals();
-        //result.geometry.computeVertexNormals();
-        this.scene.add( result );
+
+
+        /*switch (event.keyCode) {
+          case 13:
+            console.log(event.keyCode);
+            if (this.door_state) {
+              this.dummy.position.x = 7;
+              this.dummy.rotation.y += 0.5 * Math.PI;
+              this.dummy.position.z = 98;
+              this.door_state = false;
+            } else {
+              this.dummy.position.x = 0;
+              this.dummy.position.y = 0;
+              this.dummy.position.z = 0;
+              this.dummy.rotation.y -= 0.5 * Math.PI;
+              this.door_state = true;
+            }
+            console.log(this.dummy.rotation);
+            this.addTouchListener();
+            break;
+          default:
+            console.log(event.keyCode);
+            break;
+        }*/
       },
       addTouchListener() {
         //this.controls.update();
