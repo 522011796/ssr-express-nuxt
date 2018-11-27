@@ -1,3 +1,4 @@
+<script src="../../../../../../Volumes/台电酷闪/myobject/html/customJsPlugs/testPlug.js"></script>
 <template>
   <section>
     <div>
@@ -15,10 +16,12 @@
   const ThreeBSP = require('three-js-csg/index')(THREE);
   const OrbitControlsLibrary = require('three-orbit-controls');
   const OrbitControls = OrbitControlsLibrary(THREE);
+  import {MTLLoader, OBJLoader} from 'three-obj-mtl-loader'
 
   export default {
     data () {
       return {
+        container:null,
         three: '',
         camera: null,
         scene: null,
@@ -60,22 +63,40 @@
         //绘制正方体
         //this.addCube();
         this.addWall();
-        this.addDoor();
+        //this.addDoor();
         this.addWallAfter();
         this.addWallLeft();
         this.addWallRight();
+
+        //this.addObjFile();
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0,0.02);
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+8,0.02);
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+16,0.02);
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-8,0.02);
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-16,0.02);
+
+        //this.addObjFileOther('jiedaichu.mtl','jiedaichu.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y,0-9,0.06,{arrow:'y',value:0.5,tag:'-'});
+
+        //this.addObjFileOther('file.mtl','file.obj',-this.groupPlane.position.x-3,-this.groupPlane.position.y+5,0,0.4,{arrow:'y',value:0.5,tag:'-'},'#ffffff');
+
+        //this.addObjFileChuanglian('chuanglian.mtl','chuanglian.obj',0+0.5,-this.groupPlane.position.y,this.groupPlane.position.z+1,{x:0.027,y:0.003,z:0.001});
+
         this.renderer.render(this.scene, this.camera);
 
         /*this.renderer.render(this.scene, this.camera)
         this.scene.add(this.mesh);*/
         //监听键盘按键
-        document.addEventListener("click", this.onkeyDown, false);
+        //window.addEventListener("click", this.onkeyDown, false);
       },
       initContainer(){
-        let container = document.getElementById('container');
+        this.container = document.getElementById('container');
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setSize(container.clientWidth, container.clientHeight)
-        container.appendChild(this.renderer.domElement)
+        //this.renderer.setSize(container.clientWidth, container.clientHeight)
+        this.renderer.setSize(container.offsetWidth,container.offsetHeight);
+        this.container.appendChild(this.renderer.domElement)
+        this.renderer.setClearColor(0xffffff,1.0);
+        //监听键盘按键
+        this.container.addEventListener("click", this.onkeyDown, false);
       },
       initCamera: function () {
         let _self = this;
@@ -137,7 +158,7 @@
         for(var i=0;i<20;i++){
           for(var j=0;j<10;j++){
             let cubeGeometry=new THREE.CubeGeometry(5,2,5);
-            let planeMaterial=new THREE.MeshLambertMaterial(i%2==0 ? {color: 0x00ffff} : {color: 0xffffff});
+            let planeMaterial=new THREE.MeshLambertMaterial(i%2==0 ? {color: 0xdddddd} : {color: 0xffffff});
             mesh=new THREE.Mesh(cubeGeometry,planeMaterial);
             mesh.position.set(i*5,3,j*5);
             mesh.castShadow=true;//需要阴影，方块进行投射阴影
@@ -188,6 +209,26 @@
         this.wall.position.y=-this.groupPlane.position.y+3;
         this.wall.position.z=-this.groupPlane.position.z;
         this.wall.name = 'mainWall';
+
+        let cubeGeometry1 = new THREE.BoxGeometry(5,8,1);
+        let planeMaterial1 = new THREE.MeshBasicMaterial({
+          flatShading: true,
+          color : 0x58ACFA,
+          opacity: 0.5,
+          transparent : true
+        });
+        let cube = new THREE.Mesh(cubeGeometry1, planeMaterial1);
+        cube.position.x = 0;
+        cube.position.y = -this.groupPlane.position.y+3;
+        cube.position.z = -this.groupPlane.position.z;
+        cube.name='door'
+
+        var sphere1BSP = new ThreeBSP(this.wall);
+        var cube2BSP = new ThreeBSP(cube);
+
+        this.subtractMesh(cube2BSP,sphere1BSP);
+
+        this.scene.add(cube);
         //this.scene.add(this.wall);
       },
       addWallAfter(){//模拟一面墙
@@ -261,7 +302,7 @@
         this.subtractMesh(cube2BSP,sphere1BSP);
 
         //为墙面安装门,右门
-        var loader = new THREE.TextureLoader();
+        /*var loader = new THREE.TextureLoader();
         loader.load(require('../../assets/door_right.png'), function(texture) {
           var doorgeometry = new THREE.BoxGeometry(5, 8, 1);
           var doormaterial = new THREE.MeshBasicMaterial({
@@ -285,7 +326,87 @@
           _self.dummy.add(door2);
           _self.objects.push(door1);
           _self.scene.add(_self.dummy);
-        });
+        });*/
+      },
+      addObjFile(){
+        var _self = this;
+        new MTLLoader().setPath('/obj/').load('huiyizhuo2.mtl', materials => {
+          materials.preload();
+          new OBJLoader().setPath('/obj/').load('huiyizhuo2.obj', obj => {
+            obj.scale.set(0.04,0.04,0.04);
+            obj.position.set(0, -this.groupPlane.position.y, 0);
+            obj.traverse(function(child) {
+              if (child instanceof THREE.Mesh) {
+                child.material = new THREE.MeshLambertMaterial({
+                  color: 0x888888,
+                  side: THREE.DoubleSide
+                });
+              }
+            });
+
+            _self.scene.add(obj);
+          });
+        })
+      },
+      addObjFileOther(mtl,obj,x,y,z,size,angre,color){
+        var _self = this;
+        new MTLLoader().setPath('/obj/').load(mtl, materials => {
+          materials.preload();
+          new OBJLoader().setPath('/obj/').load(obj, obj => {
+            obj.scale.set(size,size,size);
+            obj.position.set(x,y,z);
+            if(angre){
+              if(angre.arrow == 'y' && angre.tag == '-'){
+                obj.rotation.y -= 0.5 * Math.PI
+              }
+              if(angre.arrow == 'x' && angre.tag == '-'){
+                obj.rotation.x -= 0.5 * Math.PI
+              }
+              if(angre.arrow == 'z' && angre.tag == '-'){
+                obj.rotation.z -= 0.5 * Math.PI
+              }
+            }
+            obj.traverse(function(child) {
+              if (child instanceof THREE.Mesh) {
+                child.material = new THREE.MeshLambertMaterial({
+                  color: color ? color : 0x888888,
+                  side: THREE.DoubleSide
+                });
+              }
+            });
+            _self.scene.add(obj);
+          });
+        })
+      },
+      addObjFileChuanglian(mtl,obj,x,y,z,size,angre,color){
+        var _self = this;
+        new MTLLoader().setPath('/obj/').load(mtl, materials => {
+          materials.preload();
+          new OBJLoader().setPath('/obj/').load(obj, obj => {
+            obj.scale.set(size.x,size.y,size.z);
+            obj.position.set(x,y,z);
+            if(angre){
+              if(angre.arrow == 'y' && angre.tag == '-'){
+                obj.rotation.y -= 0.5 * Math.PI
+              }
+              if(angre.arrow == 'x' && angre.tag == '-'){
+                obj.rotation.x -= 0.5 * Math.PI
+              }
+              if(angre.arrow == 'z' && angre.tag == '-'){
+                obj.rotation.z -= 0.5 * Math.PI
+              }
+            }
+            obj.traverse(function(child) {
+              if (child instanceof THREE.Mesh) {
+                child.material = new THREE.MeshLambertMaterial({
+                  color: color ? color : 0x888888,
+                  side: THREE.DoubleSide
+                });
+              }
+            });
+            _self.scene.add(obj);
+          });
+        })
       },
       animate: function () {
         this.cube.rotation.x += 0
@@ -301,18 +422,30 @@
         event.preventDefault();
         var raycaster = new THREE.Raycaster();
         var mouse = new THREE.Vector2();
-        //通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
 
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
-        // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
+        //mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        //mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.x = ( (event.clientX - this.container.getBoundingClientRect().left) / this.container.offsetWidth ) * 2 - 1;
+        mouse.y = - ( (event.clientY - this.container.getBoundingClientRect().top) / this.container.offsetHeight ) * 2 + 1;
+
         raycaster.setFromCamera( mouse, this.camera );
+        var intersects = raycaster.intersectObjects( this.scene.children );
 
-        // 获取raycaster直线和所有模型相交的数组集合
-        for(var item in Object.assign({},this.scene.children)){
-          //console.log(this.scene.children[item]);
-          object.push(this.scene.children[item]);
+        console.log(intersects);
+
+        for ( var i = 0; i < intersects.length; i++ ) {
+          //intersects[ 0 ].object.material.color.set( 0xff0000 );
+          if(intersects[ 0 ].object.name=='door'){
+            if (this.door_state) {
+              intersects[ 0 ].object.rotation.y += 0.5 * Math.PI;
+              this.door_state = false;
+            } else {
+              intersects[ 0 ].object.rotation.y -= 0.5 * Math.PI;
+              this.door_state = true;
+            }
+          }
         }
+
 
         //将所有的相交的模型的颜色设置为红色，如果只需要将第一个触发事件，那就数组的第一个模型改变颜色即可
         for ( var i = 0; i < object.length; i++ ) {

@@ -67,6 +67,13 @@ module.exports = {
         target: 'https://cnodejs.org/api/v1', // api主机
         pathRewrite: { '^/proxy' : '/' }
       }
+    ],
+    [
+      '/obj',
+      {
+        target: 'https://ricky-img.oss-cn-shenzhen.aliyuncs.com', // api主机
+        pathRewrite: { '^/obj' : '/' }
+      }
     ]
   ],
 
