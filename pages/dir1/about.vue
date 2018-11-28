@@ -2,9 +2,70 @@
 <template>
   <section>
     <div>
-      <div>
+      <div style="position: relative">
         demo1:
         <div id="container" class="container"></div>
+        <div>
+          <Modal
+            @on-visible-change="closeModel"
+            v-model="showPassword"
+            :footer-hide="true"
+            :closable="false"
+            width="180">
+            <div>
+              <Input v-model="passwordValHidden" placeholder="" size="small" style="" disabled :maxlength="10"  style="margin-bottom:5px;"/>
+              <Row style="margin-bottom:5px;">
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,1)">1</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,2)">2</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,3)">3</Button>
+                </Col>
+              </Row>
+              <Row style="margin-bottom:5px;">
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,4)">4</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,5)">5</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,6)">6</Button>
+                </Col>
+              </Row>
+              <Row style="margin-bottom:5px;">
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,7)">7</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,8)">8</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,9)">9</Button>
+                </Col>
+              </Row>
+              <Row style="margin-bottom:5px;">
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,'x')">x</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,0)">0</Button>
+                </Col>
+                <Col span="8" style="text-align: center">
+                  <Button @click="clkBtn($event,'√')">√</Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col span="24" style="text-align: center">
+                  <Button @click="clkBtn($event,'cancel')">取消</Button>
+                </Col>
+              </Row>
+            </div>
+          </Modal>
+        </div>
       </div>
     </div>
   </section>
@@ -43,7 +104,11 @@
         dummy:null,
         door_state:true,
         objects:[],
-        groupPlane:null
+        groupPlane:null,
+        loading:false,
+        showPassword:false,
+        passwordVal:'',
+        passwordValHidden:''
       }
     },
     created() {
@@ -57,29 +122,36 @@
         this.initControl();
         this.initStats();
         this.initLight();
-        this.initAxes();
+        //this.initAxes();
         //this.initPlane();
         this.initCustomPlane();
         //绘制正方体
         //this.addCube();
         this.addWall();
-        //this.addDoor();
+        this.addDoor();
         this.addWallAfter();
         this.addWallLeft();
         this.addWallRight();
 
         this.addObjFile();
-        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0,0.02,{name:'bangongzhuo1'});
-        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+8,0.02,{name:'bangongzhuo2'});
-        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+16,0.02,{name:'bangongzhuo3'});
-        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-8,0.02,{name:'bangongzhuo4'});
-        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-16,0.02,{name:'bangongzhuo5'});
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0,0.02,{name:'bangongzhuo1'});
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+8,0.02,{name:'bangongzhuo2'});
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+16,0.02,{name:'bangongzhuo3'});
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-8,0.02,{name:'bangongzhuo4'});
+        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-16,0.02,{name:'bangongzhuo5'});
 
-        this.addObjFileOther('jiedaichu.mtl','jiedaichu.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y,0-9,0.06,{arrow:'y',value:0.5,tag:'-',name:'jiedaichu'});
+        this.addObjFileOther('light.mtl','light.obj',0,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
+        this.addObjFileOther('light.mtl','light.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
+        this.addObjFileOther('light.mtl','light.obj',this.groupPlane.position.x+10,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
 
-        this.addObjFileOther('file.mtl','file.obj',-this.groupPlane.position.x-3,-this.groupPlane.position.y+5,0,0.4,{arrow:'y',value:0.5,tag:'-',name:'jiankong'},'#ffffff');
 
-        //this.addObjFileChuanglian('chuanglian.mtl','chuanglian.obj',0+0.5,-this.groupPlane.position.y,this.groupPlane.position.z+1,{x:0.027,y:0.003,z:0.001});
+        this.addObjFileOther('lock.mtl','lock.obj',-1,-this.groupPlane.position.y+1,-this.groupPlane.position.z+1,0.015,{arrow:'y',value:1,tag:'-',name:'lock'});
+
+        //this.addObjFileOther('jiedaichu.mtl','jiedaichu.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y,0-9,0.06,{arrow:'y',value:0.5,tag:'-',name:'jiedaichu'});
+
+        //this.addObjFileOther('file.mtl','file.obj',-this.groupPlane.position.x-3,-this.groupPlane.position.y+5,0,0.4,{arrow:'y',value:0.5,tag:'-',name:'jiankong'},'#ffffff');
+
+        //this.addObjFileChuanglian('chuanglian.mtl','chuanglian.obj',0+0.5,-this.groupPlane.position.y,this.groupPlane.position.z+1,{x:0.027,y:0.003,z:0.001},null,'#2d8cf0','chuanglian');
 
         this.initRenderer();
 
@@ -107,13 +179,13 @@
         //this.camera.position.z = 1;
         this.camera.position.x=0;
         this.camera.position.y=50;
-        this.camera.position.z=110;
+        this.camera.position.z=70;
         this.camera.lookAt(this.scene.position);//将相机快门的位置设置为场景的位置
       },
       initControl(){
         this.controls = new OrbitControls(this.camera,this.renderer.domElement);// 初始化控制器
         this.controls.target.set(0,0,0);// 设置控制器的焦点，使控制器围绕这个焦点进行旋转
-        this.controls.minDistance = 80;// 设置移动的最短距离（默认为零）
+        this.controls.minDistance = 60;// 设置移动的最短距离（默认为零）
         this.controls.maxDistance = 400;// 设置移动的最长距离（默认为无穷）
         this.controls.maxPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
         this.controls.minPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
@@ -181,7 +253,7 @@
       initLight(){
         let spotLight=new THREE.SpotLight(0xffffff);
         spotLight.position.set(0,180,100);
-        spotLight.castShadow=true;
+        spotLight.castShadow=false;
         this.scene.add(spotLight);
       },
       initGui(){
@@ -214,7 +286,7 @@
         this.wall.position.z=-this.groupPlane.position.z;
         this.wall.name = 'mainWall';
 
-        let cubeGeometry1 = new THREE.BoxGeometry(5,8,1);
+        /*let cubeGeometry1 = new THREE.BoxGeometry(5,8,1);
         let planeMaterial1 = new THREE.MeshBasicMaterial({
           map: new THREE.TextureLoader().load(require('../../assets/door_right.png'), function(texture) {
             var doorgeometry = new THREE.BoxGeometry(5, 8, 1);
@@ -226,7 +298,7 @@
           }),
           flatShading: true,
           color : 0x58ACFA,
-          opacity: 0.9,
+          opacity: 1,
           transparent : true
         });
         let cube = new THREE.Mesh(cubeGeometry1, planeMaterial1);
@@ -240,7 +312,7 @@
 
         this.subtractMesh(cube2BSP,sphere1BSP);
 
-        this.scene.add(cube);
+        this.scene.add(cube);*/
         //this.scene.add(this.wall);
       },
       addWallAfter(){//模拟一面墙
@@ -314,38 +386,33 @@
         this.subtractMesh(cube2BSP,sphere1BSP);
 
         //为墙面安装门,右门
-        /*var loader = new THREE.TextureLoader();
+        var loader = new THREE.TextureLoader();
         loader.load(require('../../assets/door_right.png'), function(texture) {
           var doorgeometry = new THREE.BoxGeometry(5, 8, 1);
           var doormaterial = new THREE.MeshBasicMaterial({
             map : texture,
             color : 0xdddddd,
           });
-          doormaterial.opacity = 1.0;
-          doormaterial.transparent = true;
+          doormaterial.opacity = 0.5;
+          doormaterial.transparent = false;
           var door1 = new THREE.Mesh(doorgeometry, doormaterial);
-          door1.position.set(0, -_self.groupPlane.position.y+3, -_self.groupPlane.position.z);
+          door1.position.set(0, 0, 0);
           door1.visible = true;
-          door1.name = 'doorMain1';
-          var door2 = door1.clone();
-          door2.position.set(0, _self.groupPlane.position.y+3, -_self.groupPlane.position.z);
-          door2.visible = false;
-          door1.name = 'doorMain2';
-          _self.dummy.position.set(0, 0, 0);
+          door1.name = 'door';
+          _self.dummy.position.set(0, -_self.groupPlane.position.y+3, -_self.groupPlane.position.z);
 
-          _self.dummy.name = 'doorMain';
+          _self.dummy.name = 'door';
           _self.dummy.add(door1);
-          _self.dummy.add(door2);
           _self.objects.push(door1);
           _self.scene.add(_self.dummy);
-        });*/
+        });
       },
       addObjFile(){
         var _self = this;
         new MTLLoader().setPath('/obj/').load('huiyizhuo2.mtl', materials => {
           materials.preload();
           new OBJLoader().setPath('/obj/').load('huiyizhuo2.obj', obj => {
-            obj.scale.set(0.04,0.04,0.04);
+            obj.scale.set(0.05,0.05,0.05);
             obj.position.set(0, -this.groupPlane.position.y, 0);
             obj.name='huiyizhuo';
             obj.traverse(function(child) {
@@ -370,14 +437,15 @@
             obj.scale.set(size,size,size);
             obj.position.set(x,y,z);
             if(angre){
+              console.log(angre.value);
               if(angre.arrow == 'y' && angre.tag == '-'){
-                obj.rotation.y -= 0.5 * Math.PI
+                obj.rotation.y -= angre.value * Math.PI
               }
               if(angre.arrow == 'x' && angre.tag == '-'){
-                obj.rotation.x -= 0.5 * Math.PI
+                obj.rotation.x -= angre.value * Math.PI
               }
               if(angre.arrow == 'z' && angre.tag == '-'){
-                obj.rotation.z -= 0.5 * Math.PI
+                obj.rotation.z -= angre.value * Math.PI
               }
             }
             if(angre.name){
@@ -396,7 +464,7 @@
           });
         })
       },
-      addObjFileChuanglian(mtl,obj,x,y,z,size,angre,color){
+      addObjFileChuanglian(mtl,obj,x,y,z,size,angre,color,name){
         var _self = this;
         new MTLLoader().setPath('/obj/').load(mtl, materials => {
           materials.preload();
@@ -414,6 +482,9 @@
                 obj.rotation.z -= 0.5 * Math.PI
               }
             }
+            if(name){
+              obj.name = name;
+            }
             obj.traverse(function(child) {
               if (child instanceof THREE.Mesh) {
                 child.material = new THREE.MeshLambertMaterial({
@@ -427,8 +498,8 @@
         })
       },
       animate: function () {
-        this.cube.rotation.x += 0
-        this.cube.rotation.y += 0.01
+        //this.cube.rotation.x += 0
+        //this.cube.rotation.y += 0.01
         //this.camera.position.x =this.camera.position.x +0.001;//相机移动
         //this.mesh.position.x += 0.003;//物体移动
         this.renderer.render(this.scene, this.camera)
@@ -493,50 +564,39 @@
         for ( var i = 0; i < objs.length; i++ ) {
           console.log(objs[ 0 ].name);
           if(objs[ 0 ].name=='door'){
-            if (this.door_state) {
-              objs[ 0 ].position.x = 2.5;
-              objs[ 0 ].position.z = -this.groupPlane.position.z+2;
-              objs[ 0 ].rotation.y += 0.5 * Math.PI;
-              this.door_state = false;
-            } else {
+            if (this.door_state == false) {
               objs[ 0 ].position.x = 0;
               objs[ 0 ].position.z = -this.groupPlane.position.z;
               objs[ 0 ].rotation.y -= 0.5 * Math.PI;
+              this.scene.getObjectByName('lock').position.x = -1;
+              this.scene.getObjectByName('lock').position.z = -this.groupPlane.position.z+1;
+              this.scene.getObjectByName('lock').rotation.y -= 0.5 * Math.PI;
               this.door_state = true;
             }
-            this.initRenderer();
           }
+          if(objs[ 0 ].name=='lock'){
+            if (this.door_state) {
+              this.showPassword = true;
+              /*this.dummy.position.x = 2.5;
+              this.dummy.position.z = -this.groupPlane.position.z+2;
+              this.dummy.rotation.y += 0.5 * Math.PI;
+              objs[ 0 ].position.x = 3.5;
+              objs[ 0 ].position.z = -this.groupPlane.position.z+3;
+              objs[ 0 ].rotation.y += 0.5 * Math.PI;
+              this.door_state = false;*/
+            } else {
+              this.dummy.position.x = 0;
+              this.dummy.position.z = -this.groupPlane.position.z;
+              this.dummy.rotation.y -= 0.5 * Math.PI;
+              objs[ 0 ].position.x = -1;
+              objs[ 0 ].position.z = -this.groupPlane.position.z+1;
+              objs[ 0 ].rotation.y -= 0.5 * Math.PI;
+              this.door_state = true;
+            }
+          }
+          this.initRenderer();
           break;
         }
-        //objs就是按照距离由近到远排列的选中模型数组集合
-        //todo:后面操作渲染展示等等...
-        //....
-
-        /*mouse.x = ( (event.clientX - this.container.getBoundingClientRect().left) / this.container.offsetWidth ) * 2 - 1;
-        mouse.y = - ( (event.clientY - this.container.getBoundingClientRect().top) / this.container.offsetHeight ) * 2 + 1;
-
-        raycaster.setFromCamera( mouse, this.camera );
-
-        var intersects = raycaster.intersectObjects( this.scene.children , true);
-        for ( var i = 0; i < intersects.length; i++ ) {
-          //intersects[ 0 ].object.material.color.set( 0xff0000 );
-          //console.log(intersects[ 0 ]);
-          if(intersects[ 0 ].object.name=='door'){
-            if (this.door_state) {
-              intersects[ 0 ].object.position.x = 2.5;
-              intersects[ 0 ].object.position.z = -this.groupPlane.position.z+2;
-              intersects[ 0 ].object.rotation.y += 0.5 * Math.PI;
-              this.door_state = false;
-            } else {
-              intersects[ 0 ].object.position.x = 0;
-              intersects[ 0 ].object.position.z = -this.groupPlane.position.z;
-              intersects[ 0 ].object.rotation.y -= 0.5 * Math.PI;
-              this.door_state = true;
-            }
-            this.initRenderer();
-            return;
-          }
-        }*/
       },
       subtractMesh(meshDoor,meshWall){
         //平行x轴横墙面4减去与meshHDoor门重叠部分
@@ -552,6 +612,43 @@
       addTouchListener() {
         //this.controls.update();
         this.renderer.render(this.scene, this.camera)
+      },
+      clkBtn(event,val){
+        if(val != 'x' && val != '√' && this.passwordVal.length <=10){
+          this.passwordVal += val
+          this.passwordValHidden += '*'
+        }
+        if(val == 'x'){
+          this.passwordVal = '';
+          this.passwordValHidden = '';
+        }
+        if(val == '√'){
+          if(this.passwordVal == '123456789'){
+            this.showPassword = false;
+
+            this.dummy.position.x = 2.5;
+            this.dummy.position.z = -this.groupPlane.position.z+2;
+            this.dummy.rotation.y += 0.5 * Math.PI;
+            this.scene.getObjectByName('lock').position.x = 3.5;
+            this.scene.getObjectByName('lock').position.z = -this.groupPlane.position.z+3;
+            this.scene.getObjectByName('lock').rotation.y += 0.5 * Math.PI;
+            this.door_state = false;
+
+            this.initRenderer();
+          }
+        }
+        if(val == 'cancel'){
+          this.showPassword = false;
+          this.passwordVal = '';
+          this.passwordValHidden = '';
+        }
+      },
+      closeModel(event){
+        if(event == false){
+          this.showPassword = false;
+          this.passwordVal = '';
+          this.passwordValHidden = '';
+        }
       }
     },
     mounted () {
