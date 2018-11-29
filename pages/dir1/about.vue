@@ -78,6 +78,9 @@
   const OrbitControlsLibrary = require('three-orbit-controls');
   const OrbitControls = OrbitControlsLibrary(THREE);
   import {MTLLoader, OBJLoader} from 'three-obj-mtl-loader'
+  const EffectComposer = require('three-effectcomposer')(THREE);
+
+  var origin = new THREE.Vector3();
 
   export default {
     data () {
@@ -108,7 +111,12 @@
         loading:false,
         showPassword:false,
         passwordVal:'',
-        passwordValHidden:''
+        passwordValHidden:'',
+        rectLight:null,
+        lightColor:'#eeeeee',
+        intensity:0,
+        ambient:0.15,
+        lightShow:true
       }
     },
     created() {
@@ -134,24 +142,35 @@
         this.addWallRight();
 
         this.addObjFile();
-        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0,0.02,{name:'bangongzhuo1'});
-        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+8,0.02,{name:'bangongzhuo2'});
-        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+16,0.02,{name:'bangongzhuo3'});
-        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-8,0.02,{name:'bangongzhuo4'});
-        //this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-16,0.02,{name:'bangongzhuo5'});
+        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0,0.02,{name:'bangongzhuo1'});
+        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+8,0.02,{name:'bangongzhuo2'});
+        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0+16,0.02,{name:'bangongzhuo3'});
+        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-8,0.02,{name:'bangongzhuo4'});
+        this.addObjFileOther('bangongzhuo1.mtl','bangongzhuo1.obj',this.groupPlane.position.x+5,-this.groupPlane.position.y,0-16,0.02,{name:'bangongzhuo5'});
 
-        this.addObjFileOther('light.mtl','light.obj',0,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
-        this.addObjFileOther('light.mtl','light.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
-        this.addObjFileOther('light.mtl','light.obj',this.groupPlane.position.x+10,-this.groupPlane.position.y+13,0,0.015,{name:'bangongzhuo5'},'#ffffff');
+        //this.addObjFileOther('light.mtl','light.obj',0,-this.groupPlane.position.y+13,0,0.015,{name:'light-left'},'#ffffff');
+        //this.addObjFileOther('light.mtl','light.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y+13,0,0.015,{name:'light-middle'},'#ffffff');
+        //this.addObjFileOther('light.mtl','light.obj',this.groupPlane.position.x+10,-this.groupPlane.position.y+13,0,0.015,{name:'light-right'},'#ffffff');
 
 
         this.addObjFileOther('lock.mtl','lock.obj',-1,-this.groupPlane.position.y+1,-this.groupPlane.position.z+1,0.015,{arrow:'y',value:1,tag:'-',name:'lock'});
 
-        //this.addObjFileOther('jiedaichu.mtl','jiedaichu.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y,0-9,0.06,{arrow:'y',value:0.5,tag:'-',name:'jiedaichu'});
+        this.addObjFileOther('jiedaichu.mtl','jiedaichu.obj',-this.groupPlane.position.x-10,-this.groupPlane.position.y,0-9,0.06,{arrow:'y',value:0.5,tag:'-',name:'jiedaichu'});
 
-        //this.addObjFileOther('file.mtl','file.obj',-this.groupPlane.position.x-3,-this.groupPlane.position.y+5,0,0.4,{arrow:'y',value:0.5,tag:'-',name:'jiankong'},'#ffffff');
+        this.addObjFileOther('file.mtl','file.obj',-this.groupPlane.position.x-3,-this.groupPlane.position.y+5,0,0.4,{arrow:'y',value:0.5,tag:'-',name:'jiankong'},'#888888');
 
-        //this.addObjFileChuanglian('chuanglian.mtl','chuanglian.obj',0+0.5,-this.groupPlane.position.y,this.groupPlane.position.z+1,{x:0.027,y:0.003,z:0.001},null,'#2d8cf0','chuanglian');
+        this.addObjFileChuanglian('chuanglian.mtl','chuanglian.obj',0+0.5,-this.groupPlane.position.y,this.groupPlane.position.z+1,{x:0.027,y:0.003,z:0.001},null,'#2d8cf0','chuanglian');
+
+        this.addObjFileOther('switch.mtl','switch.obj',this.groupPlane.position.x+10,-this.groupPlane.position.y+2,this.groupPlane.position.z+1,0.0017,{arrow:'y',value:0.5,tag:'-',name:'switch'},'#f5f5f5');
+
+
+        this.initLightOther({x:0,y:-this.groupPlane.position.y+18,z:14},{x:1,y:20,z:8},'light1');
+        this.initLightOther({x:this.groupPlane.position.x+10,y:-this.groupPlane.position.y+18,z:14},{x:1,y:20,z:8},'light2');
+        this.initLightOther({x:-this.groupPlane.position.x-10,y:-this.groupPlane.position.y+18,z:14},{x:1,y:20,z:8},'light3');
+
+        this.initLightOther({x:0,y:-this.groupPlane.position.y+18,z:-14},{x:1,y:20,z:8},'light4');
+        this.initLightOther({x:this.groupPlane.position.x+10,y:-this.groupPlane.position.y+18,z:-14},{x:1,y:20,z:8},'light5');
+        this.initLightOther({x:-this.groupPlane.position.x-10,y:-this.groupPlane.position.y+18,z:-14},{x:1,y:20,z:8},'light6');
 
         this.initRenderer();
 
@@ -166,7 +185,7 @@
         //this.renderer.setSize(container.clientWidth, container.clientHeight)
         this.renderer.setSize(container.offsetWidth,container.offsetHeight);
         this.container.appendChild(this.renderer.domElement)
-        this.renderer.setClearColor(0xffffff,1.0);
+        this.renderer.setClearColor(0x333333,1.0);
         //监听键盘按键
         this.container.addEventListener("click", this.onkeyDown, false);
       },
@@ -187,8 +206,8 @@
         this.controls.target.set(0,0,0);// 设置控制器的焦点，使控制器围绕这个焦点进行旋转
         this.controls.minDistance = 60;// 设置移动的最短距离（默认为零）
         this.controls.maxDistance = 400;// 设置移动的最长距离（默认为无穷）
-        this.controls.maxPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
-        this.controls.minPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
+        //this.controls.maxPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
+        //this.controls.minPolarAngle = Math.PI / 3;//绕垂直轨道的距离（范围是0-Math.PI,默认为Math.PI）
         this.controls.update();// 照相机转动时，必须更新该控制器
         this.controls.addEventListener("change", () =>
           this.addTouchListener()
@@ -233,10 +252,12 @@
         for(var i=0;i<20;i++){
           for(var j=0;j<10;j++){
             let cubeGeometry=new THREE.CubeGeometry(5,2,5);
-            let planeMaterial=new THREE.MeshLambertMaterial(i%2==0 ? {color: 0xdddddd} : {color: 0xffffff});
+            let planeMaterial=new THREE.MeshStandardMaterial(i%2==0 ? {color: 0xdddddd} : {color: 0xffffff});
             mesh=new THREE.Mesh(cubeGeometry,planeMaterial);
             mesh.position.set(i*5,3,j*5);
             mesh.castShadow=true;//需要阴影，方块进行投射阴影
+            mesh.roughness = 1;
+            mesh.metalness = 0.8;
             //this.scene.add(mesh);
             this.groupPlane.add(mesh);
           }
@@ -251,8 +272,8 @@
         this.scene.add(this.groupPlane);
       },
       initLight(){
-        let spotLight=new THREE.SpotLight(0xffffff);
-        spotLight.position.set(0,180,100);
+        let spotLight=new THREE.AmbientLight(0x434343);
+        spotLight.position.set(50,100,100);
         spotLight.castShadow=false;
         this.scene.add(spotLight);
       },
@@ -264,17 +285,53 @@
         this.gui = gui;
         //this.scene.add(this.gui);
       },
+      initLightOther(position,size,name){
+        var _self = this;
+        var ambient = new THREE.AmbientLight( this.lightColor, this.ambient );
+        ambient.name = 'ambient';
+        this.scene.add( ambient );
+
+        this.rectLight = new THREE.RectAreaLight( this.lightColor, size.x, size.y, size.z );
+        this.rectLight.position.set( position.x,position.y,position.z );
+        this.rectLight.rotation.x += 0.5 * Math.PI
+        //rectLight.rotation.z += 0.3 * Math.PI
+
+
+        this.rectLight.roughness = 1;
+        this.rectLight.metalness = 0;
+        this.rectLight.intensity = this.intensity;
+
+        this.rectLight.name = name;
+
+        this.scene.add( this.rectLight );
+
+        var rectLightMesh = new THREE.Mesh( new THREE.PlaneBufferGeometry(), new THREE.MeshBasicMaterial({ color: this.lightColor }) );
+        rectLightMesh.scale.x = this.rectLight.width;
+        rectLightMesh.scale.y = this.rectLight.height;
+        this.rectLight.add( rectLightMesh );
+        var rectLightMeshBack = new THREE.Mesh( new THREE.PlaneBufferGeometry(), new THREE.MeshBasicMaterial( { color: 0x222222 } ) );
+        rectLightMeshBack.rotation.y = Math.PI;
+        rectLightMesh.add( rectLightMeshBack );
+
+        this.initRenderer();
+      },
       addCube() {//立方体
-        let cubeGeometry=new THREE.CubeGeometry(10,10,10);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd});
+        let cubeGeometry=new THREE.BoxBufferGeometry(10,10,15);
+        let planeMaterial=new THREE.MeshStandardMaterial({ color: 0xA00000, roughness: 0, metalness: 0 });
         this.cube=new THREE.Mesh(cubeGeometry,planeMaterial);
         //plane1.rotation.x=-0.5*Math.PI;//将平面沿着x轴进行旋转
         this.cube.position.x=0;
-        this.cube.position.y=0;
+        this.cube.position.y=-this.groupPlane.position.y+3;
         this.cube.position.z=0;
-        this.cube.castShadow=true;//需要阴影，方块进行投射阴影
         this.cube.name = 'cube';
+        this.cube.castShadow = true;
+        this.cube.receiveShadow = true;
+
+        this.cube.roughness = 0.9;
+        this.cube.metalness = 0.9;
+
         this.scene.add(this.cube);
+        this.initRenderer();
       },
       addWall(){//模拟一面墙
         let _self = this;
@@ -350,7 +407,7 @@
       },
       addWallLeft(){//模拟一面墙
         let cubeGeometry=new THREE.CubeGeometry(1,10,45);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false});
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
         this.wall.position.x=-this.groupPlane.position.x;
         this.wall.position.y=-this.groupPlane.position.y+3;
@@ -359,7 +416,7 @@
       },
       addWallRight(){//模拟一面墙
         let cubeGeometry=new THREE.CubeGeometry(1,10,45);
-        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xdddddd,wireframe: false});
+        let planeMaterial=new THREE.MeshLambertMaterial({color: 0xbbbbbb,wireframe: false});
         this.wall=new THREE.Mesh(cubeGeometry,planeMaterial);
         this.wall.position.x=this.groupPlane.position.x;
         this.wall.position.y=-this.groupPlane.position.y+3;
@@ -417,12 +474,18 @@
             obj.name='huiyizhuo';
             obj.traverse(function(child) {
               if (child instanceof THREE.Mesh) {
-                child.material = new THREE.MeshLambertMaterial({
-                  color: 0x888888,
-                  side: THREE.DoubleSide
+                child.material = new THREE.MeshStandardMaterial({
+                  color: 0x666666,
+                  side: THREE.DoubleSide,
+                  roughness: 0,
+                  metalness: 0
                 });
               }
             });
+            /*obj.roughness = 0.9;
+            obj.metalness = 0.9;
+            obj.intensity = 0.9;*/
+
             _self.objects.push(obj);
             _self.scene.add(obj);
             _self.initRenderer();
@@ -453,10 +516,19 @@
             }
             obj.traverse(function(child) {
               if (child instanceof THREE.Mesh) {
-                child.material = new THREE.MeshLambertMaterial({
-                  color: color ? color : 0x888888,
-                  side: THREE.DoubleSide
-                });
+                if(angre.name=='switch'){
+                  child.material = new THREE.MeshLambertMaterial({
+                    color: color ? color : 0x666666,
+                    side: THREE.DoubleSide
+                  })
+                }else{
+                  child.material = new THREE.MeshStandardMaterial({
+                    color: color ? color : 0x666666,
+                    side: THREE.DoubleSide,
+                    roughness: 0,
+                    metalness: 0
+                  });
+                }
               }
             });
             _self.scene.add(obj);
@@ -502,8 +574,17 @@
         //this.cube.rotation.y += 0.01
         //this.camera.position.x =this.camera.position.x +0.001;//相机移动
         //this.mesh.position.x += 0.003;//物体移动
-        this.renderer.render(this.scene, this.camera)
+        this.renderer.render(this.scene, this.camera);
         this.stats.update();
+        var t = ( Date.now() / 2000 );
+        // move light in circle around center
+        // change light height with sine curve
+        var r = 15.0;
+        var lx = r * Math.cos( t );
+        var lz = r * Math.sin( t );
+        var ly = 5.0 + 5.0 * Math.sin( t / 3.0 );
+        this.rectLight.position.set( lx, ly, lz );
+        this.rectLight.lookAt( origin );
         requestAnimationFrame(this.animate)
       },
       onkeyDown(event) {
@@ -571,6 +652,16 @@
               this.scene.getObjectByName('lock').position.x = -1;
               this.scene.getObjectByName('lock').position.z = -this.groupPlane.position.z+1;
               this.scene.getObjectByName('lock').rotation.y -= 0.5 * Math.PI;
+
+              this.scene.getObjectByName('light1').intensity = 0;
+              this.scene.getObjectByName('light2').intensity = 0;
+              this.scene.getObjectByName('light3').intensity = 0;
+              this.scene.getObjectByName('light4').intensity = 0;
+              this.scene.getObjectByName('light5').intensity = 0;
+              this.scene.getObjectByName('light6').intensity = 0;
+              this.scene.getObjectByName('ambient').intensity = 0;
+              this.lightShow = false
+
               this.door_state = true;
             }
           }
@@ -591,10 +682,38 @@
               objs[ 0 ].position.x = -1;
               objs[ 0 ].position.z = -this.groupPlane.position.z+1;
               objs[ 0 ].rotation.y -= 0.5 * Math.PI;
+
               this.door_state = true;
             }
           }
+          if(objs[ 0 ].name=='switch'){
+            if(this.lightShow == true){
+              this.intensity = 0;
+              this.ambient = 0;
+              this.scene.getObjectByName('light1').intensity = 0;
+              this.scene.getObjectByName('light2').intensity = 0;
+              this.scene.getObjectByName('light3').intensity = 0;
+              this.scene.getObjectByName('light4').intensity = 0;
+              this.scene.getObjectByName('light5').intensity = 0;
+              this.scene.getObjectByName('light6').intensity = 0;
+              this.scene.getObjectByName('ambient').intensity = 0;
+              this.lightShow = false
+            }else{
+              this.intensity = 1.5;
+              this.ambient = 0.15;
+              this.scene.getObjectByName('light1').intensity = 1.5;
+              this.scene.getObjectByName('light2').intensity = 1.5;
+              this.scene.getObjectByName('light3').intensity = 1.5;
+              this.scene.getObjectByName('light4').intensity = 1.5;
+              this.scene.getObjectByName('light5').intensity = 1.5;
+              this.scene.getObjectByName('light6').intensity = 1.5;
+              this.scene.getObjectByName('ambient').intensity = 0.15;
+              this.lightShow = true
+            }
+          }
           this.initRenderer();
+
+          console.log(this.scene.getObjectByName('ambient'));
           break;
         }
       },
@@ -625,7 +744,6 @@
         if(val == '√'){
           if(this.passwordVal == '123456789'){
             this.showPassword = false;
-
             this.dummy.position.x = 2.5;
             this.dummy.position.z = -this.groupPlane.position.z+2;
             this.dummy.rotation.y += 0.5 * Math.PI;
@@ -633,6 +751,15 @@
             this.scene.getObjectByName('lock').position.z = -this.groupPlane.position.z+3;
             this.scene.getObjectByName('lock').rotation.y += 0.5 * Math.PI;
             this.door_state = false;
+
+            this.scene.getObjectByName('light1').intensity = 1.5;
+            this.scene.getObjectByName('light2').intensity = 1.5;
+            this.scene.getObjectByName('light3').intensity = 1.5;
+            this.scene.getObjectByName('light4').intensity = 1.5;
+            this.scene.getObjectByName('light5').intensity = 1.5;
+            this.scene.getObjectByName('light6').intensity = 1.5;
+            this.scene.getObjectByName('ambient').intensity = 0.15;
+            this.lightShow = true
 
             this.initRenderer();
           }
@@ -649,6 +776,21 @@
           this.passwordVal = '';
           this.passwordValHidden = '';
         }
+      },
+      getTextCanvas(text){
+        var width=512, height=256;
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#C3C3C3';
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = 50+'px " bold';
+        ctx.fillStyle = '#2891FF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, width/2,height/2);
+        return canvas;
       }
     },
     mounted () {
